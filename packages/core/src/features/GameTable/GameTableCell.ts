@@ -147,7 +147,9 @@ export class GameTableCell extends GameComponent {
     for (const idx of cellsToOpen) {
       const tableCell = this.tableCells[idx]
 
-      tableCell.cellStatus |= GameCellStatus.OPENED
+      if (!(tableCell.cellStatus & GameCellStatus.OPENED)) {
+        tableCell.cellStatus |= GameCellStatus.OPENED
+      }
 
       if (
         !hasBombClick &&

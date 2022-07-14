@@ -1,4 +1,7 @@
-import { makeArrayProxy } from "../../utils/makeArrayProxy"
+import {
+  makeArrayProxy,
+  MakeArrayProxyHandlerInfo
+} from "../../utils/makeArrayProxy"
 import { generateRandomNumbers } from "../../utils/random/generateRandomNumbers"
 import { GameHeader } from "../GameHeader/GameHeader"
 import { GameCellStatus } from "../GameTable/GameCellStatus"
@@ -8,6 +11,7 @@ import * as styles from "./Game.module.css"
 import { GameStatus } from "./GameStatus"
 import { GameCellsCounter } from "./GameCellsCounter"
 import { getDefaultCellsCounter } from "../../utils/getDefaultCellsCounter"
+import { splitGameCellStatus } from "../../utils/splitGameCellStatus"
 
 export class Game {
   // game state
@@ -35,12 +39,12 @@ export class Game {
   }
 
   set cells(value) {
-    const handleChange = () => {
-      this.computeCellsCounter()
+    const handleChange = (info?: MakeArrayProxyHandlerInfo<GameCellStatus>) => {
+      this.computeCellsCounter(info)
       this.checkGameStatus()
     }
 
-    this.#cells = makeArrayProxy(value, () => handleChange())
+    this.#cells = makeArrayProxy(value, (info) => handleChange(info))
 
     handleChange()
   }
@@ -96,31 +100,53 @@ export class Game {
     return this.cellsCount - this.cellsOpenedCount
   }
 
-  computeCellsCounter() {
-    this.cellsCounter = this.cells.reduce((acc, cellStatus, idx) => {
-      const hasFlag = Boolean(cellStatus & GameCellStatus.FLAG)
-      const hasBomb = Boolean(cellStatus & GameCellStatus.BOMB)
-      const isOpened = Boolean(cellStatus & GameCellStatus.OPENED)
-      const hasBombClicked = Boolean(cellStatus & GameCellStatus.BOMB_CLICK)
+  computeCellsCounter(info?: MakeArrayProxyHandlerInfo<GameCellStatus>) {
+    if (info) {
+      const { idx, prevValue, nextValue } = info
 
-      if (hasFlag) {
-        acc.flags++
+      if (prevValue === nextValue) {
+        return
       }
 
-      if (hasBomb) {
-        acc.distributedBombs++
+      const cellsCounter = this.cellsCounter
+
+      const prevState = splitGameCellStatus(prevValue)
+
+      cellsCounter.flags -= Number(prevState.hasFlag)
+      cellsCounter.cellsOpened -= Number(prevState.isOpened)
+      cellsCounter.distributedBombs -= Number(prevState.hasBomb)
+
+      if (prevState.hasBombClicked && idx === cellsCounter.bombClickIndex) {
+        cellsCounter.bombClickIndex = null
       }
 
-      if (isOpened) {
-        acc.cellsOpened++
+      const nextState = splitGameCellStatus(nextValue)
+
+      cellsCounter.flags += Number(nextState.hasFlag)
+      cellsCounter.cellsOpened += Number(nextState.isOpened)
+      cellsCounter.distributedBombs += Number(nextState.hasBomb)
+
+      if (nextState.hasBombClicked) {
+        cellsCounter.bombClickIndex = idx
       }
 
-      if (hasBombClicked) {
-        acc.bombClickIndex = idx
-      }
+      this.cellsCounter = cellsCounter
+    } else {
+      this.cellsCounter = this.cells.reduce((acc, cellStatus, idx) => {
+        const { hasBomb, hasBombClicked, hasFlag, isOpened } =
+          splitGameCellStatus(cellStatus)
 
-      return acc
-    }, getDefaultCellsCounter())
+        acc.flags += Number(hasFlag)
+        acc.cellsOpened += Number(isOpened)
+        acc.distributedBombs += Number(hasBomb)
+
+        if (hasBombClicked) {
+          acc.bombClickIndex = idx
+        }
+
+        return acc
+      }, getDefaultCellsCounter())
+    }
   }
 
   // end computed state

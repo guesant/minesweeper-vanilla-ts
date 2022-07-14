@@ -1,21 +1,31 @@
+export type MakeArrayProxyHandlerInfo<T> = {
+  idx: number
+  prevValue: T
+  nextValue: T
+}
+
 export const makeArrayProxy = <T extends any>(
   array: T[],
-  callback: () => any
+  handler: (info: MakeArrayProxyHandlerInfo<T>) => any
 ) =>
   new Proxy(Array.from(array), {
-    set(target: T[], key: string | symbol, value: any): boolean {
+    set(target: T[], key: string | symbol, nextValue: any): boolean {
       if (typeof key !== "symbol") {
         const idx = parseInt(key)
 
         if (!Number.isNaN(idx)) {
-          target[idx] = value
-          callback()
+          const prevValue = target[idx]
+
+          target[idx] = nextValue
+
+          handler({ idx, prevValue, nextValue })
+
           return true
         }
       }
 
       if (key in target) {
-        target[key as any] = value
+        target[key as any] = nextValue
         return true
       }
 
