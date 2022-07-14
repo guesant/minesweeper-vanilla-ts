@@ -1,0 +1,43 @@
+:root {
+  --border-light-size: 2px;
+  --border-shadow-size: 2px;
+
+  --border-light: var(--border-light-size) solid #ffffff;
+  --border-shadow: var(--border-shadow-size) solid #7b7b7b;
+
+  --game-padding: 8px;
+  --game-bg-color: #bdbdbd;
+
+  --game-table-gap: 1px;
+  --game-table-cell-size: 24px;
+
+  --game-table-bg-color: #7b7b7b;
+  --game-table-cell-bg-color: #bdbdbd;
+
+  --game-header-counter-color: #ff0000;
+
+  --game-counter-font: "Graduate", cursive;
+}
+
+.game {
+  --game-table-cols: -1;
+  --game-table-rows: -1;
+
+  display: inline-flex;
+  flex-direction: column;
+
+  padding: var(--game-padding);
+  background-color: var(--game-bg-color);
+
+  cursor: default;
+  user-select: none;
+}
+
+/* borders */
+
+.game {
+  border-top: var(--border-light);
+  border-left: var(--border-light);
+  border-right: var(--border-shadow);
+  border-bottom: var(--border-shadow);
+}

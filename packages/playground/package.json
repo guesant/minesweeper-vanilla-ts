@@ -1,0 +1,15 @@
+{
+  "name": "@minesweeper-vanilla-ts/playground",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "parcel src/index.html",
+    "build": "parcel build src/index.html"
+  },
+  "dependencies": {
+    "@minesweeper-vanilla-ts/core": "workspace:*"
+  },
+  "devDependencies": {
+    "parcel": "^2.6.2",
+    "typescript": "^4.7.4"
+  }
+}

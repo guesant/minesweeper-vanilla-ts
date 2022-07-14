@@ -1,0 +1,7 @@
+{
+  "name": "@minesweeper-vanilla-ts/core",
+  "source": "src/index.ts",
+  "devDependencies": {
+    "typescript": "^4.7.4"
+  }
+}

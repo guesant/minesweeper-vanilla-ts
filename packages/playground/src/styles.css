@@ -1,0 +1,17 @@
+body {
+  font-family: sans-serif;
+
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+*,
+::after,
+::before {
+  box-sizing: border-box;
+}

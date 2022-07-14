@@ -1,0 +1,69 @@
+.gameTable {
+  order: 1;
+
+  display: grid;
+
+  gap: var(--game-table-gap);
+
+  grid-template-columns: repeat(
+    var(--game-table-cols),
+    var(--game-table-cell-size)
+  );
+
+  grid-template-rows: repeat(
+    var(--game-table-rows),
+    var(--game-table-cell-size)
+  );
+
+  background-color: var(--game-table-bg-color);
+}
+
+.gameTable .gameTableCell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--game-table-cell-bg-color);
+}
+
+/* light to shadow */
+
+.gameTable .gameTableCell:not([data-opened]):not(:active) {
+  border-top: var(--border-light);
+  border-left: var(--border-light);
+  border-right: var(--border-shadow);
+  border-bottom: var(--border-shadow);
+}
+
+/* shadow to light */
+
+.gameTable {
+  border-top: var(--border-shadow);
+  border-left: var(--border-shadow);
+  border-right: var(--border-light);
+  border-bottom: var(--border-light);
+}
+
+.gameTable .gameTableCell:not([data-opened]):active {
+  --border-shadow-size: 1px;
+
+  border-top: var(--border-shadow);
+  border-left: var(--border-shadow);
+  border-right: none;
+  border-bottom: none;
+}
+
+.gameTableCell::after {
+  font-size: 14px;
+}
+
+.gameTableCell[data-flag]::after {
+  content: "🚩";
+}
+
+.gameTableCell[data-bomb]::after {
+  content: "💣";
+}
+
+.gameTable .gameTableCell[data-bomb="click"] {
+  background-color: red;
+}
