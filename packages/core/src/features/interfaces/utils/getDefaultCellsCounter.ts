@@ -1,4 +1,4 @@
-import { GameCellsCounter } from "../features/Game/GameCellsCounter"
+import { GameCellsCounter } from "../GameCellsCounter"
 
 export const getDefaultCellsCounter = (): GameCellsCounter => ({
   flags: 0,

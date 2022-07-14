@@ -1,6 +1,7 @@
-import { GameComponent } from "../../utils/GameComponent"
+import { GameComponent } from "../interfaces/GameComponent"
 import { getMaskedCounter } from "../../utils/masks/getMaskedCounter"
 import { Game } from "../Game/Game"
+import { GameStatus } from "../interfaces/GameStatus"
 import * as styles from "./GameHeader.module.css"
 
 export class GameHeader extends GameComponent {
@@ -12,12 +13,26 @@ export class GameHeader extends GameComponent {
 
   // computed state
 
-  get elapsedTime() {
-    return this.game.timer.elapsedTime
-  }
-
   get unknownBombs() {
     return Math.max(this.game.bombsCount - this.game.flagsCount, 0)
+  }
+
+  get statusEmoji() {
+    const { status } = this.game
+
+    if (status & GameStatus.LOSE) {
+      return "😵"
+    }
+
+    if (status & GameStatus.WIN) {
+      return "😎"
+    }
+
+    return "🙂"
+  }
+
+  get elapsedTime() {
+    return this.game.timer.elapsedTime
   }
 
   constructor(game: Game) {
@@ -49,7 +64,7 @@ export class GameHeader extends GameComponent {
     this.bombsCounterEl.textContent = getMaskedCounter(this.unknownBombs)
 
     // CENTER PANEL
-    this.btnStatusEl.textContent = "🙂"
+    this.btnStatusEl.textContent = this.statusEmoji
 
     // RIGHT PANEL
     this.timerCounterEl.textContent = getMaskedCounter(this.elapsedTime)

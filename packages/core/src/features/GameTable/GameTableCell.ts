@@ -1,5 +1,5 @@
 import { GameCellStatus } from "./GameCellStatus"
-import { GameComponent } from "../../utils/GameComponent"
+import { GameComponent } from "../interfaces/GameComponent"
 import { getAroundPositions } from "../../utils/matrix/getAroundPositions"
 import { GameTable } from "./GameTable"
 import * as styles from "./GameTable.module.css"
@@ -74,7 +74,7 @@ export class GameTableCell extends GameComponent {
   }
 
   handleClick = () => {
-    if (!this.game.statusCanTouch) {
+    if (!this.game.table.canTouchTable) {
       return
     }
 
@@ -170,7 +170,7 @@ export class GameTableCell extends GameComponent {
   }
 
   handleRightClick = () => {
-    if (!this.game.statusCanTouch) {
+    if (!this.game.table.canTouchTable) {
       return
     }
 

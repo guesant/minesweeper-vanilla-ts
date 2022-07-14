@@ -27,7 +27,7 @@
 
 /* light to shadow */
 
-.gameTable .gameTableCell:not([data-opened]):not(:active) {
+.gameTable .gameTableCell:not([data-opened]) {
   border-top: var(--border-light);
   border-left: var(--border-light);
   border-right: var(--border-shadow);
@@ -43,7 +43,7 @@
   border-bottom: var(--border-light);
 }
 
-.gameTable .gameTableCell:not([data-opened]):active {
+.gameTable:not([data-can-not-touch]) .gameTableCell:not([data-opened]):active {
   --border-shadow-size: 1px;
 
   border-top: var(--border-shadow);

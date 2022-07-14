@@ -1,4 +1,4 @@
-import { Game } from "../features/Game"
+import { Game } from "../Game"
 
 export interface IGameComponentOptions {
   className?: string

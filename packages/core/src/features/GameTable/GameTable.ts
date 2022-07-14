@@ -1,11 +1,20 @@
-import { GameComponent } from "../../utils/GameComponent"
+import { GameComponent } from "../interfaces/GameComponent"
 import { Game } from "../Game/Game"
+import { GameStatus } from "../interfaces/GameStatus"
 import * as styles from "./GameTable.module.css"
 import { GameTableCell } from "./GameTableCell"
 
 export class GameTable extends GameComponent {
   tableCells: GameTableCell[] = []
+
   safeCellsAlreadyChecked = new Set<number>()
+
+  get canTouchTable() {
+    const { status } = this.game
+    return Boolean(
+      (status & GameStatus.RUNNING) | (status & GameStatus.STOPPED)
+    )
+  }
 
   constructor(game: Game) {
     super(game, { className: styles.gameTable })
@@ -13,6 +22,12 @@ export class GameTable extends GameComponent {
   }
 
   render() {
+    if (this.canTouchTable) {
+      delete this.rootEl.dataset.canNotTouch
+    } else {
+      this.rootEl.dataset.canNotTouch = ""
+    }
+
     const tableCellsToRender = this.tableCells.filter(
       (tableCell) => tableCell.shouldRender
     )

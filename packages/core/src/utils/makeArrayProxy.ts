@@ -18,7 +18,9 @@ export const makeArrayProxy = <T extends any>(
 
           target[idx] = nextValue
 
-          handler({ idx, prevValue, nextValue })
+          if (prevValue !== nextValue) {
+            handler({ idx, prevValue, nextValue })
+          }
 
           return true
         }

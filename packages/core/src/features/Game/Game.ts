@@ -8,10 +8,10 @@ import { GameCellStatus } from "../GameTable/GameCellStatus"
 import { GameTable } from "../GameTable/GameTable"
 import { GameTimer } from "../GameTimer/GameTimer"
 import * as styles from "./Game.module.css"
-import { GameStatus } from "./GameStatus"
-import { GameCellsCounter } from "./GameCellsCounter"
-import { getDefaultCellsCounter } from "../../utils/getDefaultCellsCounter"
-import { splitGameCellStatus } from "../../utils/splitGameCellStatus"
+import { GameStatus } from "../interfaces/GameStatus"
+import { GameCellsCounter } from "../interfaces/GameCellsCounter"
+import { getDefaultCellsCounter } from "../interfaces/utils/getDefaultCellsCounter"
+import { splitGameCellStatus } from "../interfaces/utils/splitGameCellStatus"
 
 export class Game {
   // game state
@@ -23,16 +23,6 @@ export class Game {
   bombsCount = 0
 
   #cells: GameCellStatus[] = []
-
-  //
-
-  timer = new GameTimer()
-
-  table = new GameTable(this)
-
-  header = new GameHeader(this)
-
-  //
 
   get cells() {
     return this.#cells
@@ -73,11 +63,6 @@ export class Game {
     return GameStatus.STOPPED
   }
 
-  get statusCanTouch() {
-    const { status } = this
-    return (status & GameStatus.RUNNING) | (status & GameStatus.STOPPED)
-  }
-
   cellsCounter: GameCellsCounter = getDefaultCellsCounter()
 
   get flagsCount() {
@@ -99,6 +84,16 @@ export class Game {
   get cellsClosedCount() {
     return this.cellsCount - this.cellsOpenedCount
   }
+
+  //
+
+  timer = new GameTimer()
+
+  table = new GameTable(this)
+
+  header = new GameHeader(this)
+
+  //
 
   computeCellsCounter(info?: MakeArrayProxyHandlerInfo<GameCellStatus>) {
     if (info) {
