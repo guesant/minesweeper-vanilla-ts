@@ -22,8 +22,10 @@
 }
 
 .gameHeader [data-button="status"] {
-  padding: calc(var(--game-padding) * 0.2);
+  width: 2.25rem;
+  height: 2.25rem;
   font-size: 1.3rem;
+  padding: 0;
 }
 
 .gameHeader [data-counter] {

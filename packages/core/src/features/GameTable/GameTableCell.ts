@@ -1,6 +1,6 @@
-import { GameCellStatus } from "../../interfaces/GameCellStatus"
-import { GameComponent } from "../../interfaces/GameComponent"
-import { getAroundPositions } from "../../utils/getAroundPositions"
+import { GameCellStatus } from "./GameCellStatus"
+import { GameComponent } from "../../utils/GameComponent"
+import { getAroundPositions } from "../../utils/matrix/getAroundPositions"
 import { GameTable } from "./GameTable"
 import * as styles from "./GameTable.module.css"
 
@@ -94,7 +94,6 @@ export class GameTableCell extends GameComponent {
 
     const safeCellsToOpen = new Set<number>()
 
-    const { safeCellsAlreadyChecked } = this.game.table
     const { aroundCellsWithBombsCount } = this
 
     if (aroundCellsWithBombsCount === 0) {
@@ -122,6 +121,8 @@ export class GameTableCell extends GameComponent {
       }
     }
 
+    const { safeCellsAlreadyChecked } = this.game.table
+
     while (safeCellsToOpen.size > 0) {
       const targetIdx = safeCellsToOpen.values().next().value
 
@@ -131,7 +132,9 @@ export class GameTableCell extends GameComponent {
         aroundPositions.forEach((aroundIdx) => cellsToOpen.add(aroundIdx))
 
         aroundPositions
-          .filter((i) => !safeCellsAlreadyChecked.has(i))
+          .filter(
+            (i) => !safeCellsAlreadyChecked.has(i) && !safeCellsToOpen.has(i)
+          )
           .filter((i) => this.tableCells[i].aroundCellsWithBombsCount === 0)
           .forEach((i) => safeCellsToOpen.add(i))
 

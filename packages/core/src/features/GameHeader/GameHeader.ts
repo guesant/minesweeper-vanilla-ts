@@ -1,9 +1,15 @@
-import { GameComponent } from "../../interfaces/GameComponent"
-import { getMaskedCounter } from "../../utils/getMaskedCounter"
+import { GameComponent } from "../../utils/GameComponent"
+import { getMaskedCounter } from "../../utils/masks/getMaskedCounter"
 import { Game } from "../Game/Game"
 import * as styles from "./GameHeader.module.css"
 
 export class GameHeader extends GameComponent {
+  bombsCounterEl: HTMLElement
+
+  btnStatusEl: HTMLElement
+
+  timerCounterEl: HTMLElement
+
   // computed state
 
   get elapsedTime() {
@@ -12,20 +18,6 @@ export class GameHeader extends GameComponent {
 
   get unknownBombs() {
     return Math.max(this.game.bombsCount - this.game.flagsCount, 0)
-  }
-
-  // computed state
-
-  get bombsCounterEl() {
-    return this.rootEl.querySelector('[data-counter="bombs"]')!
-  }
-
-  get btnStatusEl() {
-    return this.rootEl.querySelector('[data-button="status"]')!
-  }
-
-  get timerCounterEl() {
-    return this.rootEl.querySelector('[data-counter="timer"]')!
   }
 
   constructor(game: Game) {
@@ -43,10 +35,12 @@ export class GameHeader extends GameComponent {
       </div>
     `
 
+    this.bombsCounterEl = this.rootEl.querySelector('[data-counter="bombs"]')!
+    this.btnStatusEl = this.rootEl.querySelector('[data-button="status"]')!
+    this.timerCounterEl = this.rootEl.querySelector('[data-counter="timer"]')!
+
     this.game.timer.listeners.add(() => this.render())
-
     this.btnStatusEl.addEventListener("click", () => this.game.restart())
-
     this.game.rootEl.appendChild(this.rootEl)
   }
 

@@ -1,4 +1,4 @@
-import { GameComponent } from "../../interfaces/GameComponent"
+import { GameComponent } from "../../utils/GameComponent"
 import { Game } from "../Game/Game"
 import * as styles from "./GameTable.module.css"
 import { GameTableCell } from "./GameTableCell"
@@ -13,9 +13,11 @@ export class GameTable extends GameComponent {
   }
 
   render() {
-    for (const tableCell of this.tableCells.filter(
+    const tableCellsToRender = this.tableCells.filter(
       (tableCell) => tableCell.shouldRender
-    )) {
+    )
+
+    for (const tableCell of tableCellsToRender) {
       tableCell.render()
     }
   }

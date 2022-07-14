@@ -1,19 +1,14 @@
-import { GameCellStatus } from "../../interfaces/GameCellStatus"
-import { generateRandomNumbers } from "../../utils/generateRandomNumbers"
+import { GameCellStatus } from "../GameTable/GameCellStatus"
+import { generateRandomNumbers } from "../../utils/random/generateRandomNumbers"
 import { GameHeader } from "../GameHeader/GameHeader"
 import { GameTable } from "../GameTable/GameTable"
 import { GameTimer } from "../GameTimer/GameTimer"
 import * as styles from "./Game.module.css"
-import { ComputedStateCache } from "../../utils/ComputedStateCache"
-import { GameStatus } from "../../interfaces/GameStatus"
+import { ComputedStateCache } from "../../utils/cache/ComputedStateCache"
+import { GameStatus } from "./GameStatus"
+import { makeArrayProxy } from "../../utils/makeArrayProxy"
 
 export class Game {
-  timer = new GameTimer()
-
-  table = new GameTable(this)
-
-  header = new GameHeader(this)
-
   // game state
 
   cols = 0
@@ -24,44 +19,33 @@ export class Game {
 
   #cells: GameCellStatus[] = []
 
+  //
+
+  timer = new GameTimer()
+
+  table = new GameTable(this)
+
+  header = new GameHeader(this)
+
+  computedStateCache = new ComputedStateCache<"cells", string>()
+
+  //
+
   get cells() {
     return this.#cells
   }
 
   set cells(value) {
-    const game = this
+    const handleChange = () => this.computedStateCache.revokeDependency("cells")
 
-    this.#cells = new Proxy(Array.from(value), {
-      set(target: GameCellStatus[], key: string | symbol, value: any): boolean {
-        if (typeof key !== "symbol") {
-          const idx = parseInt(key)
+    this.#cells = makeArrayProxy(value, () => handleChange())
 
-          if (!Number.isNaN(idx) && idx > 0) {
-            target[idx] = value
-
-            game.computedStateCache.revokeDependency("cells")
-
-            return true
-          }
-        }
-
-        if (key in target) {
-          target[key as any] = value
-          return true
-        }
-
-        return false
-      }
-    })
-
-    this.computedStateCache.revokeDependency("cells")
+    handleChange()
   }
 
   // end game state
 
   // computed state
-
-  computedStateCache = new ComputedStateCache<"cells", string>()
 
   get cellsCount() {
     return this.cols * this.rows
