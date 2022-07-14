@@ -7,7 +7,7 @@ export const makeArrayProxy = <T extends any>(
       if (typeof key !== "symbol") {
         const idx = parseInt(key)
 
-        if (!Number.isNaN(idx) && idx > 0) {
+        if (!Number.isNaN(idx)) {
           target[idx] = value
           callback()
           return true
