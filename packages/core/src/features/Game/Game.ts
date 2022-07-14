@@ -1,12 +1,13 @@
-import { GameCellStatus } from "../GameTable/GameCellStatus"
+import { makeArrayProxy } from "../../utils/makeArrayProxy"
 import { generateRandomNumbers } from "../../utils/random/generateRandomNumbers"
 import { GameHeader } from "../GameHeader/GameHeader"
+import { GameCellStatus } from "../GameTable/GameCellStatus"
 import { GameTable } from "../GameTable/GameTable"
 import { GameTimer } from "../GameTimer/GameTimer"
 import * as styles from "./Game.module.css"
-import { ComputedStateCache } from "../../utils/cache/ComputedStateCache"
 import { GameStatus } from "./GameStatus"
-import { makeArrayProxy } from "../../utils/makeArrayProxy"
+import { GameCellsCounter } from "./GameCellsCounter"
+import { getDefaultCellsCounter } from "../../utils/getDefaultCellsCounter"
 
 export class Game {
   // game state
@@ -27,8 +28,6 @@ export class Game {
 
   header = new GameHeader(this)
 
-  computedStateCache = new ComputedStateCache<"cells", string>()
-
   //
 
   get cells() {
@@ -37,7 +36,7 @@ export class Game {
 
   set cells(value) {
     const handleChange = () => {
-      this.computedStateCache.revokeDependency("cells")
+      this.computeCellsCounter()
       this.checkGameStatus()
     }
 
@@ -75,72 +74,64 @@ export class Game {
     return (status & GameStatus.RUNNING) | (status & GameStatus.STOPPED)
   }
 
+  cellsCounter: GameCellsCounter = getDefaultCellsCounter()
+
   get flagsCount() {
-    return this.computedStateCache.get("cellsStats").flagsCount as number
+    return this.cellsCounter.flags
   }
 
   get bombClickIndex() {
-    return this.computedStateCache.get("cellsStats").bombClickIndex as number
+    return this.cellsCounter.bombClickIndex
   }
 
   get distributedBombsCount() {
-    return this.computedStateCache.get("cellsStats")
-      .distributedBombsCount as number
+    return this.cellsCounter.distributedBombs
   }
 
   get cellsOpenedCount() {
-    return this.computedStateCache.get("cellsStats").cellsOpenedCount as number
+    return this.cellsCounter.cellsOpened
   }
 
   get cellsClosedCount() {
     return this.cellsCount - this.cellsOpenedCount
   }
 
+  computeCellsCounter() {
+    this.cellsCounter = this.cells.reduce((acc, cellStatus, idx) => {
+      const hasFlag = Boolean(cellStatus & GameCellStatus.FLAG)
+      const hasBomb = Boolean(cellStatus & GameCellStatus.BOMB)
+      const isOpened = Boolean(cellStatus & GameCellStatus.OPENED)
+      const hasBombClicked = Boolean(cellStatus & GameCellStatus.BOMB_CLICK)
+
+      if (hasFlag) {
+        acc.flags++
+      }
+
+      if (hasBomb) {
+        acc.distributedBombs++
+      }
+
+      if (isOpened) {
+        acc.cellsOpened++
+      }
+
+      if (hasBombClicked) {
+        acc.bombClickIndex = idx
+      }
+
+      return acc
+    }, getDefaultCellsCounter())
+  }
+
   // end computed state
 
   constructor(public rootEl: HTMLElement) {
     this.rootEl.classList.add(styles.game)
-
     this.rootEl.addEventListener("contextmenu", (e) => e.preventDefault())
-
-    this.computedStateCache.add(
-      "cellsStats",
-      () => {
-        return this.cells.reduce(
-          (acc, cellStatus, idx) => {
-            if (cellStatus & GameCellStatus.FLAG) {
-              acc.flagsCount++
-            }
-
-            if (cellStatus & GameCellStatus.BOMB) {
-              acc.distributedBombsCount++
-            }
-
-            if (cellStatus & GameCellStatus.OPENED) {
-              acc.cellsOpenedCount++
-            }
-
-            if (cellStatus & GameCellStatus.BOMB_CLICK) {
-              acc.bombClickIndex = idx
-            }
-
-            return acc
-          },
-          {
-            flagsCount: 0,
-            cellsOpenedCount: 0,
-            bombClickIndex: null as null | number,
-            distributedBombsCount: 0
-          }
-        )
-      },
-      ["cells"]
-    )
   }
 
   checkGameStatus() {
     const { status } = this
-
     if (status & GameStatus.WIN || status & GameStatus.LOSE) {
       this.timer.stop()
     }

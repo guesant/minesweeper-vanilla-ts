@@ -11,7 +11,7 @@ export class GameTimer {
 
   set elapsedTime(value) {
     this.#elapsedTime = value
-    requestIdleCallback(() => this.runListeners(), { timeout: 100 })
+    requestIdleCallback(() => this.runListeners(), { timeout: 10 })
   }
 
   get isRunning() {
@@ -26,6 +26,7 @@ export class GameTimer {
 
   start() {
     this.stop()
+
     this.#intervalId = setInterval(() => {
       this.elapsedTime++
     }, 1000)
