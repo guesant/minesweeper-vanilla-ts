@@ -36,7 +36,10 @@ export class Game {
   }
 
   set cells(value) {
-    const handleChange = () => this.computedStateCache.revokeDependency("cells")
+    const handleChange = () => {
+      this.computedStateCache.revokeDependency("cells")
+      this.checkGameStatus()
+    }
 
     this.#cells = makeArrayProxy(value, () => handleChange())
 
@@ -100,14 +103,6 @@ export class Game {
 
     this.rootEl.addEventListener("contextmenu", (e) => e.preventDefault())
 
-    this.timer.listeners.add(() => {
-      const { status } = this
-
-      if (status & GameStatus.WIN || status & GameStatus.LOSE) {
-        this.timer.stop()
-      }
-    })
-
     this.computedStateCache.add(
       "cellsStats",
       () => {
@@ -141,6 +136,14 @@ export class Game {
       },
       ["cells"]
     )
+  }
+
+  checkGameStatus() {
+    const { status } = this
+
+    if (status & GameStatus.WIN || status & GameStatus.LOSE) {
+      this.timer.stop()
+    }
   }
 
   start(cols: number, rows: number, bombsCount: number) {
