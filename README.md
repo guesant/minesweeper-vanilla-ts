@@ -16,6 +16,6 @@ Demo: <https://guesant.github.io/minesweeper-vanilla-ts>.
 
 ## Author
 
-- Gabriel R. Antunes, 2022. 
+- Gabriel R. Antunes, 2022.
 
   - GitHub: [@guesant](https://github.com/guesant)
