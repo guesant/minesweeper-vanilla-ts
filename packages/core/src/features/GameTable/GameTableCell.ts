@@ -1,4 +1,4 @@
-import { GameCellStatus } from "./GameCellStatus"
+import { GameCellStatus } from "../interfaces/GameCellStatus"
 import { GameComponent } from "../interfaces/GameComponent"
 import { getAroundPositions } from "../../utils/matrix/getAroundPositions"
 import { GameTable } from "./GameTable"
@@ -15,12 +15,12 @@ export class GameTableCell extends GameComponent {
     return Math.floor(this.index / this.game.cols)
   }
 
-  get tableCells() {
-    return this.game.table.tableCells
-  }
-
   get tableCell() {
     return this.tableCells[this.index]
+  }
+
+  get tableCells() {
+    return this.game.table.tableCells
   }
 
   get cellStatus() {

@@ -5,13 +5,15 @@ import { GameStatus } from "../interfaces/GameStatus"
 import * as styles from "./GameHeader.module.css"
 
 export class GameHeader extends GameComponent {
+  //
+
   bombsCounterEl: HTMLElement
 
   btnStatusEl: HTMLElement
 
   timerCounterEl: HTMLElement
 
-  // computed state
+  //
 
   get unknownBombs() {
     return Math.max(this.game.bombsCount - this.game.flagsCount, 0)
@@ -34,6 +36,8 @@ export class GameHeader extends GameComponent {
   get elapsedTime() {
     return this.game.timer.elapsedTime
   }
+
+  //
 
   constructor(game: Game) {
     super(game, { className: styles.gameHeader })

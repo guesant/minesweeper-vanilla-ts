@@ -1,4 +1,4 @@
-import { GameCellStatus } from "../../GameTable/GameCellStatus"
+import { GameCellStatus } from "../GameCellStatus"
 
 export const splitGameCellStatus = (cellStatus: GameCellStatus) => {
   const hasFlag = Boolean(cellStatus & GameCellStatus.FLAG)

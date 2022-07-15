@@ -4,17 +4,18 @@ import {
 } from "../../utils/makeArrayProxy"
 import { generateRandomNumbers } from "../../utils/random/generateRandomNumbers"
 import { GameHeader } from "../GameHeader/GameHeader"
-import { GameCellStatus } from "../GameTable/GameCellStatus"
+import { GameCellStatus } from "../interfaces/GameCellStatus"
 import { GameTable } from "../GameTable/GameTable"
 import { GameTimer } from "../GameTimer/GameTimer"
 import * as styles from "./Game.module.css"
 import { GameStatus } from "../interfaces/GameStatus"
 import { GameCellsCounter } from "../interfaces/GameCellsCounter"
 import { getDefaultCellsCounter } from "../interfaces/utils/getDefaultCellsCounter"
-import { splitGameCellStatus } from "../interfaces/utils/splitGameCellStatus"
+import { getGameStatus } from "../interfaces/utils/getGameStatus"
+import { computeCellsCounterUpdate } from "../interfaces/utils/computeCellsCounterUpdate"
 
 export class Game {
-  // game state
+  //
 
   cols = 0
 
@@ -23,6 +24,18 @@ export class Game {
   bombsCount = 0
 
   #cells: GameCellStatus[] = []
+
+  //
+
+  timer = new GameTimer()
+
+  table = new GameTable(this)
+
+  header = new GameHeader(this)
+
+  cellsCounter: GameCellsCounter = getDefaultCellsCounter()
+
+  //
 
   get cells() {
     return this.#cells
@@ -39,31 +52,13 @@ export class Game {
     handleChange()
   }
 
-  // end game state
-
-  // computed state
-
   get cellsCount() {
     return this.cols * this.rows
   }
 
   get status() {
-    if (this.bombClickIndex) {
-      return GameStatus.LOSE
-    }
-
-    if (this.cellsClosedCount === this.bombsCount) {
-      return GameStatus.WIN
-    }
-
-    if (this.timer.isRunning) {
-      return GameStatus.RUNNING
-    }
-
-    return GameStatus.STOPPED
+    return getGameStatus(this)
   }
-
-  cellsCounter: GameCellsCounter = getDefaultCellsCounter()
 
   get flagsCount() {
     return this.cellsCounter.flags
@@ -85,65 +80,6 @@ export class Game {
     return this.cellsCount - this.cellsOpenedCount
   }
 
-  //
-
-  timer = new GameTimer()
-
-  table = new GameTable(this)
-
-  header = new GameHeader(this)
-
-  //
-
-  computeCellsCounter(info?: MakeArrayProxyHandlerInfo<GameCellStatus>) {
-    if (info) {
-      const { idx, prevValue, nextValue } = info
-
-      if (prevValue === nextValue) {
-        return
-      }
-
-      const cellsCounter = this.cellsCounter
-
-      const prevState = splitGameCellStatus(prevValue)
-
-      cellsCounter.flags -= Number(prevState.hasFlag)
-      cellsCounter.cellsOpened -= Number(prevState.isOpened)
-      cellsCounter.distributedBombs -= Number(prevState.hasBomb)
-
-      if (prevState.hasBombClicked && idx === cellsCounter.bombClickIndex) {
-        cellsCounter.bombClickIndex = null
-      }
-
-      const nextState = splitGameCellStatus(nextValue)
-
-      cellsCounter.flags += Number(nextState.hasFlag)
-      cellsCounter.cellsOpened += Number(nextState.isOpened)
-      cellsCounter.distributedBombs += Number(nextState.hasBomb)
-
-      if (nextState.hasBombClicked) {
-        cellsCounter.bombClickIndex = idx
-      }
-
-      this.cellsCounter = cellsCounter
-    } else {
-      this.cellsCounter = this.cells.reduce((acc, cellStatus, idx) => {
-        const { hasBomb, hasBombClicked, hasFlag, isOpened } =
-          splitGameCellStatus(cellStatus)
-
-        acc.flags += Number(hasFlag)
-        acc.cellsOpened += Number(isOpened)
-        acc.distributedBombs += Number(hasBomb)
-
-        if (hasBombClicked) {
-          acc.bombClickIndex = idx
-        }
-
-        return acc
-      }, getDefaultCellsCounter())
-    }
-  }
-
   // end computed state
 
   constructor(public rootEl: HTMLElement) {
@@ -156,6 +92,10 @@ export class Game {
     if (status & GameStatus.WIN || status & GameStatus.LOSE) {
       this.timer.stop()
     }
+  }
+
+  computeCellsCounter(info?: MakeArrayProxyHandlerInfo<GameCellStatus>) {
+    this.cellsCounter = computeCellsCounterUpdate(this, info)
   }
 
   start(cols: number, rows: number, bombsCount: number) {

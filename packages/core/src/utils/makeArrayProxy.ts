@@ -6,7 +6,8 @@ export type MakeArrayProxyHandlerInfo<T> = {
 
 export const makeArrayProxy = <T extends any>(
   array: T[],
-  handler: (info: MakeArrayProxyHandlerInfo<T>) => any
+  handler: (info: MakeArrayProxyHandlerInfo<T>) => any,
+  callHandlerOnlyIfValueHasChanged = true
 ) =>
   new Proxy(Array.from(array), {
     set(target: T[], key: string | symbol, nextValue: any): boolean {
@@ -18,7 +19,7 @@ export const makeArrayProxy = <T extends any>(
 
           target[idx] = nextValue
 
-          if (prevValue !== nextValue) {
+          if (prevValue !== nextValue || !callHandlerOnlyIfValueHasChanged) {
             handler({ idx, prevValue, nextValue })
           }
 
