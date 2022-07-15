@@ -10,24 +10,20 @@ export const updateCellsCounterState = (
 ) => {
   const cellsCounter = structuredClone(currentCellsCounter)
 
-  const { hasBomb, hasBombClicked, hasFlag, isOpened } =
+  const { hasBomb, wasBombClicked, hasFlag, isOpened } =
     splitGameCellStatus(cellStatus)
 
-  if (revert) {
-    cellsCounter.flags -= Number(hasFlag)
-    cellsCounter.cellsOpened -= Number(isOpened)
-    cellsCounter.distributedBombs -= Number(hasBomb)
+  const sumFactor = revert ? -1 : 1;
 
-    if (hasBombClicked && idx === cellsCounter.bombClickIndex) {
-      cellsCounter.bombClickIndex = null
-    }
-  } else {
-    cellsCounter.flags += Number(hasFlag)
-    cellsCounter.cellsOpened += Number(isOpened)
-    cellsCounter.distributedBombs += Number(hasBomb)
+  cellsCounter.flags += Number(hasFlag) * sumFactor
+  cellsCounter.cellsOpened += Number(isOpened) * sumFactor
+  cellsCounter.distributedBombs += Number(hasBomb) * sumFactor
 
-    if (hasBombClicked) {
+  if(wasBombClicked) {
+    if(!revert) {
       cellsCounter.bombClickIndex = idx
+    } else if(idx === cellsCounter.bombClickIndex) {
+      cellsCounter.bombClickIndex = null
     }
   }
 

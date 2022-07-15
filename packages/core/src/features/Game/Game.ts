@@ -42,14 +42,8 @@ export class Game {
   }
 
   set cells(value) {
-    const handleChange = (info?: MakeArrayProxyHandlerInfo<GameCellStatus>) => {
-      this.computeCellsCounter(info)
-      this.checkGameStatus()
-    }
-
-    this.#cells = makeArrayProxy(value, (info) => handleChange(info))
-
-    handleChange()
+    this.#cells = makeArrayProxy(value, (info) => this.handleCellsChange(info))
+    this.handleCellsChange()
   }
 
   get cellsCount() {
@@ -96,6 +90,11 @@ export class Game {
 
   computeCellsCounter(info?: MakeArrayProxyHandlerInfo<GameCellStatus>) {
     this.cellsCounter = computeCellsCounterUpdate(this, info)
+  }
+
+  handleCellsChange(info?: MakeArrayProxyHandlerInfo<GameCellStatus>) {
+    this.computeCellsCounter(info)
+    this.checkGameStatus()
   }
 
   start(cols: number, rows: number, bombsCount: number) {
